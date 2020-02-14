@@ -10,10 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dateformat": "^3.0.3",
     "html-entities": "^1.2.1",
+    "mysql": "^2.18.1",
     "spaserver": "git+https://github.com/liborsvejda/spaserver.git"
-  },
-  "devDependencies": {
-    "dateformat": "^3.0.3"
   }
 }

@@ -53,6 +53,47 @@
                 });
             });
         }
+        function dbTridy() {
+            let url = `${HOST}/db/tridy`;
+            fetch(url).then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        alert(obj.error);
+                    } else {
+                        let s = `Třídy: <select id="tridy" onchange="dbStudenti()">`;
+                        s += `<option value="">Vše</option>`;
+                        for (let t of obj.tridy) {
+                            s += `<option value="${t.id}">${t.rocnik}.${t.oznaceni}</option>`;
+                        }
+                        s += `</select>`;
+                        s += `&nbsp;&nbsp;&nbsp;<input type="text" id="vyhledat"><input type="button" value="Vyhledat" onclick="dbStudenti()">`;
+                        document.getElementById("div_tridy").innerHTML = s;
+                    }
+                });
+            });
+        }
+        function dbStudenti() {
+            let url = `${HOST}/db/studenti?`;
+            let t = document.getElementById("tridy").value;
+            if (t) {
+                url += "&trida="+t;
+            }
+            let txt = document.getElementById("vyhledat").value;
+            if (txt) {
+                url += "&text="+txt;
+            }
+            fetch(url).then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    let s = ``;
+                    for (let st of obj.studenti) {
+                        s += `${st.prijmeni} ${st.jmeno} (${st.rocnik}.${st.oznaceni_tridy}) ${st.cislo_podle_tridnice}<br>`;
+                    }
+                    document.getElementById("div_studenti").innerHTML = s;
+                });
+            });
+        }
     </script>
 </head>
 <body onload="spustPoNacteni()">
@@ -65,6 +106,11 @@ Použiju metodu <input type="radio" name="metoda" id="GET" checked="checked">GET
 dne <input type="date" id="datum2" onchange="ukazDen2()"> byl(a/o)/bude <span id="den2">...</span>.
 <br><br>
 <img src="res/nodejs.png" title="obrázek">
+
+<h2>Příklad použití MySQL - školní třídy a studenti</h2>
+
+<div id="div_tridy"><input type="button" value="Načti třídy" onclick="dbTridy()"></div>
+<div id="div_studenti"></div>
 
 </body>
 </html>
