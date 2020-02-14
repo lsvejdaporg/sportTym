@@ -16,7 +16,7 @@ let connection;
 
 exports.getConnection = function() {
     _checkDbConnection();
-    return (connection && connection.state === 'authenticated') ? connection : undefined;
+    return connection;
 }
 
 const _checkDbConnection = function() {

@@ -60,6 +60,21 @@
                     let obj = JSON.parse(text);
                     if (obj.error) {
                         alert(obj.error);
+                        let s = `Ve své databázi založte tabulky pomocí <a href="./db/create_tables.sql" target="_blank">create_tables.sql</a> a `;
+                        s += `do rootu svého projektu vložte a upravte konfiguraci <a href="./db/app-config.json" target="_blank">app-config.json</a>.<br><br>`;
+                        s += `Pokud se připojujete na MySQL/MariaDB na Roští.cz, tak v konfiguraci bude <b>"host": "localhost", "port": 3306,</b> <b>"user"</b> a <b>"database"</b> jsou stejné hodnoty odpovídající názvu vaší databáze.<br>`;
+                        s += `Také si vygenerujte tunelovací příkaz:<br>`;
+                        s += `<table>`;
+                        s += `<tr><td>Aplikace</td><td style="text-align: right">SSH spojení - URI:</td><td><input type="text" id="uri" size="40"> (podle detailu aplikace v admin.rosti.cz; např. <b>ssh://app@node-12.rosti.cz:16185</b>)</td></tr>`;
+                        s += `<tr><td>Úložiště|MariaDB/MySQL databáze</td><td style="text-align: right">Server:</td><td><input type="text" id="mysql_server" value="storeX.rosti.cz"></td></tr>`;
+                        s += `<tr><td>Úložiště|MariaDB/MySQL databáze</td><td style="text-align: right">Server port:</td><td><input type="number" id="mysql_port" value="3306"></td></tr>`;
+                        s += `<tr><td colspan=2 style="text-align: right"><input type="button" value="Příkaz pro tunelování >>>" onclick="mySQL()"></td><td><input type="text" id="mysql_tunel" size="60"></td></tr>`;
+                        s += `</table>`;
+                        s += `Vygenerovaný příkaz spusťte v terminálu WebStorm a zadejte heslo. Pak se bude možné vzdáleně připojit k databázi na Roští.cz<br>`;
+                        s += `<br>`;
+                        s += `Po restartu aplikace pak můžete vygenerovat náhodné studenty do tříd zavoláním <a href="http://localhost:8080/dbgen" target="_blank">localhost:8080/dbgen</a>. `;
+
+                        document.getElementById("div_tridy").innerHTML = s;
                     } else {
                         let s = `Třídy: <select id="tridy" onchange="dbStudenti()">`;
                         s += `<option value="">Vše</option>`;
@@ -93,6 +108,26 @@
                     document.getElementById("div_studenti").innerHTML = s;
                 });
             });
+        }
+        function copyInfo() {
+            alert("Příkaz zkopírován do schránky (clipboardu).");
+        }
+        function mySQL() {
+            let uri = document.getElementById("uri").value.trim();
+            let server = document.getElementById("mysql_server").value;
+            let port = document.getElementById("mysql_port").value;
+
+            if (uri.startsWith("ssh://")) {
+                uri = uri.substr(6);
+            }
+            let arr = uri.split(":");
+            let s = `ssh -L 127.0.0.1:${port}:${server}:${port} -p ${arr[1]} ${arr[0]}`;
+            let e = document.getElementById("mysql_tunel");
+            e.value = s;
+            e.select();
+            document.execCommand("copy");
+            //e.setSelectionRange(0, 0);
+            setTimeout(copyInfo,100);
         }
     </script>
 </head>

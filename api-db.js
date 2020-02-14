@@ -3,21 +3,17 @@ const getDbConnection = require("./db-mysql").getConnection;
 exports.apiDb = function (req, res, obj) {
     let connection = getDbConnection();
     console.log("connection="+connection);
-    if (!connection) {
-        obj.error = "Error when connecting to db.";
-        res.end(JSON.stringify(obj));
-        return;
-    }
     if (req.pathname.endsWith("/tridy")) {
         connection.query(
             `SELECT * FROM spaserverexample_tridy ORDER BY rocnik,oznaceni`,
             function(err, rows){
                 if (err) {
-                    console.log(JSON.stringify({status: "Error", error: err}));
+                    console.error(JSON.stringify({status: "Error", error: err}));
+                    obj.error = JSON.stringify(err);
                 } else {
                     obj.tridy = rows;
-                    res.end(JSON.stringify(obj));
                 }
+                res.end(JSON.stringify(obj));
             }
         );
     } else if (req.pathname.endsWith("/studenti")) {
@@ -33,11 +29,12 @@ exports.apiDb = function (req, res, obj) {
         connection.query(qry,
             function(err, rows){
                 if (err) {
-                    console.log(JSON.stringify({status: "Error", error: err}));
+                    console.error(JSON.stringify({status: "Error", error: err}));
+                    obj.error = JSON.stringify(err);
                 } else {
                     obj.studenti = rows;
-                    res.end(JSON.stringify(obj));
                 }
+                res.end(JSON.stringify(obj));
             }
         );
     } else {
