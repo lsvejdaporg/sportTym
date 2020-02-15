@@ -5,25 +5,43 @@
     <title>Příklad použití modulu spaserver</title>
     <script>
         const HOST = window.location.protocol + "//" + window.location.hostname + ((window.location.port) ? ":" + window.location.port : "");
+
+        function ukazChybu(e) {
+            console.error('Error:', e.toString());
+            let s;
+            if (typeof e == "object") {
+                s = JSON.stringify(e);
+            } else {
+                s = e;
+            }
+            alert(s);
+        }
+
         function ukazDen() {
             let url = `${HOST}/denvtydnu`;
-            fetch(url).then(function(response) {
-                response.text().then(function(text) {
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
                     let obj = JSON.parse(text);
                     document.getElementById("den").innerHTML = obj.den.toLowerCase();
                     document.getElementById("datum").innerHTML = obj.datum;
+                }).catch((error) => {
+                    ukazChybu(error);
                 });
             });
         }
+
         function ukazCas() {
             let url = `${HOST}/cas`;
-            fetch(url).then(function(response) {
-                response.text().then(function(text) {
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
                     let obj = JSON.parse(text);
                     document.getElementById("cas").innerHTML = obj.cas;
+                }).catch((error) => {
+                    ukazChybu(error);
                 });
             });
         }
+
         function spustPoNacteni() {
             ukazDen();
             setInterval(ukazCas, 1000);
@@ -34,49 +52,41 @@
             document.getElementById("datum2").valueAsDate = dt;
             ukazDen2();
         }
+
         function ukazDen2() {
             let dt = document.getElementById("datum2").valueAsDate;
             if (!dt) return;
             let opt = null;
             let url = `${HOST}/denvtydnu`;
             if (document.getElementById("GET").checked) {
-                url = `${url}?r=${dt.getFullYear()}&m=${dt.getMonth()+1}&d=${dt.getDate()}`;
+                url = `${url}?r=${dt.getFullYear()}&m=${dt.getMonth() + 1}&d=${dt.getDate()}`;
             } else {
-                let body = {"r":dt.getFullYear(),"m":dt.getMonth()+1,"d":dt.getDate()};
-                opt = {"method":"POST","body":JSON.stringify(body)};
+                let body = {"r": dt.getFullYear(), "m": dt.getMonth() + 1, "d": dt.getDate()};
+                opt = {"method": "POST", "body": JSON.stringify(body)};
             }
-            fetch(url, opt).then(function(response) {
-                response.text().then(function(text) {
+            fetch(url, opt).then(function (response) {
+                response.text().then(function (text) {
                     let obj = JSON.parse(text);
                     document.getElementById("den2").innerHTML = obj.den.toLowerCase();
                     document.getElementById("datum2").innerHTML = obj.datum;
+                }).catch((error) => {
+                    ukazChybu(error);
                 });
             });
         }
+
         function dbTridy() {
             let url = `${HOST}/db/tridy`;
-            fetch(url).then(function(response) {
-                response.text().then(function(text) {
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
                     let obj = JSON.parse(text);
                     if (obj.error) {
                         alert(obj.error);
-                        let s = `Ve své databázi založte tabulky pomocí <a href="./db/create_tables.sql" target="_blank">create_tables.sql</a> a `;
-                        s += `do rootu svého projektu vložte a upravte konfiguraci <a href="./db/app-config.json" target="_blank">app-config.json</a>.<br><br>`;
-                        s += `Pokud se připojujete na MySQL/MariaDB na Roští.cz, tak v konfiguraci bude <b>"host": "localhost", "port": 3306,</b> <b>"user"</b> a <b>"database"</b> jsou stejné hodnoty odpovídající názvu vaší databáze.<br>`;
-                        s += `Také si vygenerujte tunelovací příkaz:<br>`;
-                        s += `<table>`;
-                        s += `<tr><td>Aplikace</td><td style="text-align: right">SSH spojení - URI:</td><td><input type="text" id="uri" size="40"> (podle detailu aplikace v admin.rosti.cz; např. <b>ssh://app@node-12.rosti.cz:16185</b>)</td></tr>`;
-                        s += `<tr><td>Úložiště|MariaDB/MySQL databáze</td><td style="text-align: right">Server:</td><td><input type="text" id="mysql_server" value="storeX.rosti.cz"></td></tr>`;
-                        s += `<tr><td>Úložiště|MariaDB/MySQL databáze</td><td style="text-align: right">Server port:</td><td><input type="number" id="mysql_port" value="3306"></td></tr>`;
-                        s += `<tr><td colspan=2 style="text-align: right"><input type="button" value="Příkaz pro tunelování >>>" onclick="mySQL()"></td><td><input type="text" id="mysql_tunel" size="60"></td></tr>`;
-                        s += `</table>`;
-                        s += `Vygenerovaný příkaz spusťte v terminálu WebStorm a zadejte heslo. Pak se bude možné vzdáleně připojit k databázi na Roští.cz<br>`;
-                        s += `<br>`;
-                        s += `Po restartu aplikace pak můžete vygenerovat náhodné studenty do tříd zavoláním <a href="http://localhost:8080/dbgen" target="_blank">localhost:8080/dbgen</a>. `;
-
+                        let s = `<a href="./db-setup/index.html" target="_blank">Příprava databáze</a>`;
                         document.getElementById("div_tridy").innerHTML = s;
                     } else {
                         let s = `Třídy: <select id="tridy" onchange="dbStudenti()">`;
+                        s += `<option value="-">- nic -</option>`;
                         s += `<option value="">Vše</option>`;
                         for (let t of obj.tridy) {
                             s += `<option value="${t.id}">${t.rocnik}.${t.oznaceni}</option>`;
@@ -85,59 +95,54 @@
                         s += `&nbsp;&nbsp;&nbsp;<input type="text" id="vyhledat"><input type="button" value="Vyhledat" onclick="dbStudenti()">`;
                         document.getElementById("div_tridy").innerHTML = s;
                     }
+                }).catch((error) => {
+                    ukazChybu(error);
                 });
             });
         }
+
         function dbStudenti() {
             let url = `${HOST}/db/studenti?`;
             let t = document.getElementById("tridy").value;
+            if (t == "-") { //nic
+                document.getElementById("div_studenti").innerHTML = "";
+                return;
+            }
             if (t) {
-                url += "&trida="+t;
+                url += "&trida=" + t;
             }
             let txt = document.getElementById("vyhledat").value;
             if (txt) {
-                url += "&text="+txt;
+                url += "&text=" + txt;
             }
-            fetch(url).then(function(response) {
-                response.text().then(function(text) {
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
                     let obj = JSON.parse(text);
-                    let s = ``;
-                    for (let st of obj.studenti) {
-                        s += `${st.prijmeni} ${st.jmeno} (${st.rocnik}.${st.oznaceni_tridy}) ${st.cislo_podle_tridnice}<br>`;
+                    if (obj.error) {
+                        document.getElementById("div_studenti").innerHTML = obj.error;
+                    } else {
+                        let s = ``;
+                        for (let st of obj.studenti) {
+                            s += `${st.prijmeni} ${st.jmeno} (${st.rocnik}.${st.oznaceni_tridy}) ${st.cislo_podle_tridnice}<br>`;
+                        }
+                        document.getElementById("div_studenti").innerHTML = s;
                     }
-                    document.getElementById("div_studenti").innerHTML = s;
+                }).catch((error) => {
+                    ukazChybu(error);
                 });
             });
         }
-        function copyInfo() {
-            alert("Příkaz zkopírován do schránky (clipboardu).");
-        }
-        function mySQL() {
-            let uri = document.getElementById("uri").value.trim();
-            let server = document.getElementById("mysql_server").value;
-            let port = document.getElementById("mysql_port").value;
 
-            if (uri.startsWith("ssh://")) {
-                uri = uri.substr(6);
-            }
-            let arr = uri.split(":");
-            let s = `ssh -L 127.0.0.1:${port}:${server}:${port} -p ${arr[1]} ${arr[0]}`;
-            let e = document.getElementById("mysql_tunel");
-            e.value = s;
-            e.select();
-            document.execCommand("copy");
-            //e.setSelectionRange(0, 0);
-            setTimeout(copyInfo,100);
-        }
     </script>
 </head>
 <body onload="spustPoNacteni()">
 
 <h1>Příklad použití modulu <a href="https://github.com/liborsvejda/spaserver" target="_blank">spaserver</a></h1>
 
-Dnes je <span id="den">...</span> <span id="datum">...</span>. Čas na serveru je  <span id="cas">...</span>.
+Dnes je <span id="den">...</span> <span id="datum">...</span>. Čas na serveru je <span id="cas">...</span>.
 <br><br>
-Použiju metodu <input type="radio" name="metoda" id="GET" checked="checked">GET nebo <input type="radio" name="metoda" id="POST">POST a zjistím, že
+Použiju metodu <input type="radio" name="metoda" id="GET" checked="checked">GET nebo <input type="radio" name="metoda"
+                                                                                            id="POST">POST a zjistím, že
 dne <input type="date" id="datum2" onchange="ukazDen2()"> byl(a/o)/bude <span id="den2">...</span>.
 <br><br>
 <img src="res/nodejs.png" title="obrázek">

@@ -2,7 +2,6 @@ const getDbConnection = require("./db-mysql").getConnection;
 
 exports.apiDb = function (req, res, obj) {
     let connection = getDbConnection();
-    console.log("connection="+connection);
     if (req.pathname.endsWith("/tridy")) {
         connection.query(
             `SELECT * FROM spaserverexample_tridy ORDER BY rocnik,oznaceni`,
@@ -21,7 +20,7 @@ exports.apiDb = function (req, res, obj) {
         if (req.parameters.trida) { //pokud je zadana trida, vybereme jen studenty z dane tridy
             qry += " AND t.id="+req.parameters.trida;
         }
-        if (req.parameters.text) { //pokud je zadan vyhledavany text, vybereme jen studenty, jejich jmeno nebo prijmeni obsahuje dany text
+        if (req.parameters.text) { //pokud je zadan vyhledavany text, vybereme jen studenty, jejichz jmeno nebo prijmeni obsahuje dany text
             qry += " AND (s.jmeno LIKE '%"+req.parameters.text+"%' OR s.prijmeni LIKE '%"+req.parameters.text+"%')";
         }
         qry += " ORDER BY prijmeni,jmeno,rocnik"; //setridime primarne podle prijmeni

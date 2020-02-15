@@ -2,7 +2,7 @@ const createSpaServer = require("spaserver").createSpaServer;
 const apiDenVTydnu = require('./api-denvtydnu').apiDenVTydnu;
 const apiCas = require('./api-cas').apiCas;
 const apiDb = require('./api-db').apiDb;
-const apiDbGen = require('./api-db-gen').apiDbGen;
+const apiDbGen = require('./db-setup/api-db-gen').apiDbGen;
 
 const PORT = 8080; //aplikace na Rosti.cz musi bezet na portu 8080
 const API_HEAD = {
@@ -16,13 +16,16 @@ function processApi(req, res) {
     res.writeHead(200, API_HEAD);
     let obj = {};
     obj.status = API_STATUS_OK;
+
+    if (req.pathname === "/dbgen") { //v ostre aplikaci nebude toto treba
+        apiDbGen(req, res, obj);
+        return;
+    }
+
     if (req.pathname === "/denvtydnu") {
         apiDenVTydnu(req, res, obj);
     } else if (req.pathname === "/cas") {
         apiCas(req, res, obj);
-    } else if (req.pathname === "/dbgen") {
-        apiDbGen(req, res, obj);
-        return; //MySQL query je asynchronni
     } else if (req.pathname.startsWith("/db")) {
         apiDb(req, res, obj);
         return; //MySQL query je asynchronni

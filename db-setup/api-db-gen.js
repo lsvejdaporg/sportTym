@@ -1,4 +1,4 @@
-const getDbConnection = require("./db-mysql").getConnection;
+const getDbConnection = require("../db-mysql").getConnection;
 
 const MUZSKA_JMENA = ["Jiří", "Jan", "Petr", "Josef", "Pavel", "Martin", "Jaroslav", "Tomáš", "Miroslav", "Zdeněk", "František", "Václav", "Michal", "Milan", "Karel", "Jakub", "Lukáš", "David", "Vladimír", "Ladislav"];
 const MUZSKA_PRIJMENI = ["Novák", "Svoboda", "Novotný", "Dvořák", "Černý", "Procházka", "Kučera", "Veselý", "Horák", "Němec", "Pokorný", "Marek", "Pospíšil", "Hájek", "Jelínek", "Král", "Růžička", "Beneš", "Fiala", "Sedláček", "Doležal", "Zeman", "Charvát", "Šulc", "Řezníček"];
@@ -24,9 +24,12 @@ exports.apiDbGen = function (req, res, obj) {
                             console.log(JSON.stringify({status: "Error", error: err}));
                         } else {
                             let qry = "INSERT INTO spaserverexample_tridy (rocnik, oznaceni, maturitni_rok) VALUES ";
+                            obj.classes = 0;
                             for (let r = 1; r <= 4; r++) {
                                 qry += `(${r},'A',${2024 - r}),`;
+                                obj.classes++;
                                 qry += `(${r},'B',${2024 - r}),`;
+                                obj.classes++;
                             }
                             qry = qry.substr(0, qry.length - 1);
                             console.log(qry);
@@ -37,6 +40,7 @@ exports.apiDbGen = function (req, res, obj) {
                                         console.log(JSON.stringify({status: "Error", error: err}));
                                     } else {
                                         let qry = "INSERT INTO spaserverexample_studenti (tridy_id, jmeno, prijmeni, cislo_podle_tridnice) VALUES ";
+                                        obj.students = 0;
                                         for (let t = 1; t <= 8; t++) {
                                             let j, p;
                                             let pocStudentu = nahodneCislo(20, 30);
@@ -49,6 +53,7 @@ exports.apiDbGen = function (req, res, obj) {
                                                     p = MUZSKA_PRIJMENI[nahodneCislo(0, MUZSKA_PRIJMENI.length - 1)];
                                                 }
                                                 qry += `(${t},'${j}','${p}',${c}),`;
+                                                obj.students++;
                                             }
                                         }
                                         qry = qry.substr(0, qry.length - 1);
