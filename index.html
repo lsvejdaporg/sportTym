@@ -14,7 +14,8 @@
             } else {
                 s = e;
             }
-            alert(s);
+            document.getElementById("div_chyby").innerHTML = `<input type="button" value="x" onclick="document.getElementById('div_chyby').style.display = 'none'"> ${s}`;
+            document.getElementById("div_chyby").style.display = 'block';
         }
 
         function ukazDen() {
@@ -81,8 +82,8 @@
                 response.text().then(function (text) {
                     let obj = JSON.parse(text);
                     if (obj.error) {
-                        alert(obj.error);
-                        let s = `<a href="./db-setup/index.html" target="_blank">Příprava databáze</a>`;
+                        ukazChybu(obj.error);
+                        let s = `<a href="./db-setup/index.html" target="_blank" style="background-color: yellow">Příprava databáze</a>`;
                         document.getElementById("div_tridy").innerHTML = s;
                     } else {
                         let s = `Třídy: <select id="tridy" onchange="dbStudenti()">`;
@@ -119,7 +120,8 @@
                 response.text().then(function (text) {
                     let obj = JSON.parse(text);
                     if (obj.error) {
-                        document.getElementById("div_studenti").innerHTML = obj.error;
+                        ukazChybu(obj.error);
+                        document.getElementById("div_studenti").innerHTML = "";
                     } else {
                         let s = ``;
                         for (let st of obj.studenti) {
@@ -136,6 +138,7 @@
     </script>
 </head>
 <body onload="spustPoNacteni()">
+<div id="div_chyby" style="color: white; background-color: red; display: none"></div>
 
 <h1>Příklad použití modulu <a href="https://github.com/liborsvejda/spaserver" target="_blank">spaserver</a></h1>
 
