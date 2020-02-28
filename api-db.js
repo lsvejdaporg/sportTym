@@ -16,7 +16,7 @@ exports.apiDb = function (req, res, obj) {
             }
         );
     } else if (req.pathname.endsWith("/studenti")) {
-        let qry = "SELECT s.jmeno,s.prijmeni,t.rocnik,t.oznaceni as 'oznaceni_tridy',s.cislo_podle_tridnice FROM spaserverexample_studenti s, spaserverexample_tridy t WHERE t.id=s.tridy_id";
+        let qry = "SELECT s.id,s.jmeno,s.prijmeni,t.rocnik,t.oznaceni as 'oznaceni_tridy',s.cislo_podle_tridnice FROM spaserverexample_studenti s, spaserverexample_tridy t WHERE t.id=s.tridy_id";
         if (req.parameters.trida) { //pokud je zadana trida, vybereme jen studenty z dane tridy
             qry += " AND t.id="+req.parameters.trida;
         }
