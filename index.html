@@ -100,7 +100,21 @@
                 });
             });
         }
-
+        function smazStudenta(id) {
+            let url = `${HOST}/db/smazStudenta?id=${id}`;
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        document.getElementById("div_studenti").innerHTML = obj.error;
+                    } else {
+                        dbStudenti();
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
         function dbStudenti() {
             let url = `${HOST}/db/studenti?`;
             let t = document.getElementById("tridy").value;
@@ -123,7 +137,7 @@
                     } else {
                         let s = ``;
                         for (let st of obj.studenti) {
-                            s += `${st.prijmeni} ${st.jmeno} (${st.rocnik}.${st.oznaceni_tridy}) ${st.cislo_podle_tridnice}<br>`;
+                            s += `[<a href="JavaScript:smazStudenta(${st.id})">X</a>] ${st.prijmeni} ${st.jmeno} (${st.rocnik}.${st.oznaceni_tridy}) ${st.cislo_podle_tridnice}<br>`;
                         }
                         document.getElementById("div_studenti").innerHTML = s;
                     }
