@@ -92,7 +92,8 @@
                             s += `<option value="${t.id}">${t.rocnik}.${t.oznaceni}</option>`;
                         }
                         s += `</select>`;
-                        s += `&nbsp;&nbsp;&nbsp;<input type="text" id="vyhledat"><input type="button" value="Vyhledat" onclick="dbStudenti()">`;
+                        s += `&nbsp;&nbsp;<input type="text" id="jmeno" placeholder="jméno"><input type="text" id="prijmeni" placeholder="příjmení"><input type="button" value="Uložit" onclick="pridejStudenta()">`;
+                        s += `<br><input type="text" id="vyhledat"><input type="button" value="Vyhledat" onclick="dbStudenti()">`;
                         document.getElementById("div_tridy").innerHTML = s;
                     }
                 }).catch((error) => {
@@ -115,7 +116,42 @@
                 });
             });
         }
+        function pridejStudenta() {
+            let t = document.getElementById("tridy").value;
+            if (!t || t == "-") { //vse nebo nic
+                document.getElementById("div_studenti").innerHTML = "";
+                return;
+            }
+            let url = `${HOST}/db/pridejStudenta?trida=${t}`;
+            url += "&jmeno=" + document.getElementById("jmeno").value;
+            url += "&prijmeni=" + document.getElementById("prijmeni").value;
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        document.getElementById("div_studenti").innerHTML = obj.error;
+                    } else {
+                        dbStudenti();
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
+        let edit_id; //id editovaneho studenta
+        function upravitStudenta(id, jmeno, prijmeni) {
+            edit_id = id;
+            document.getElementById("jmeno").value = jmeno;
+            document.getElementById("prijmeni").value = prijmeni;
+
+        }
+        function ulozStudenta() {
+            //obdoba function pridejStudenta(), ale musi se predat i id studenta s hodnotou ${edit_id}
+
+        }
         function dbStudenti() {
+            document.getElementById("jmeno").value = "";
+            document.getElementById("prijmeni").value = "";
             let url = `${HOST}/db/studenti?`;
             let t = document.getElementById("tridy").value;
             if (t == "-") { //nic
@@ -137,7 +173,7 @@
                     } else {
                         let s = ``;
                         for (let st of obj.studenti) {
-                            s += `[<a href="JavaScript:smazStudenta(${st.id})">X</a>] ${st.prijmeni} ${st.jmeno} (${st.rocnik}.${st.oznaceni_tridy}) ${st.cislo_podle_tridnice}<br>`;
+                            s += `[<a href="JavaScript:smazStudenta(${st.id})">X</a>] <a href="JavaScript:upravitStudenta(${st.id},'${st.jmeno}','${st.prijmeni}')">${st.prijmeni} ${st.jmeno}</a> (${st.rocnik}.${st.oznaceni_tridy}) ${st.cislo_podle_tridnice}<br>`;
                         }
                         document.getElementById("div_studenti").innerHTML = s;
                     }

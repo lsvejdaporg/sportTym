@@ -50,6 +50,21 @@ exports.apiDb = function (req, res, obj) {
                 res.end(JSON.stringify(obj));
             }
         );
+    } else if (req.pathname.endsWith("/pridejStudenta")) {
+        let qry = "INSERT INTO spaserverexample_studenti (tridy_id, jmeno, prijmeni, cislo_podle_tridnice)";
+        qry += " VALUES ('"+req.parameters.trida+"', '"+req.parameters.jmeno+"', '"+req.parameters.prijmeni+"', '0');";
+        connection.query(qry,
+            function(err, rows){
+                if (err) {
+                    console.error(JSON.stringify({status: "Error", error: err}));
+                    obj.error = JSON.stringify(err);
+                } else {
+                }
+                res.end(JSON.stringify(obj));
+            }
+        );
+    } else if (req.pathname.endsWith("/ulozStudenta")) {
+        //obdoba /pridejStudenta, ale bude to "UPDATE ... WHERE id=req.parameters.id"
     } else {
         obj.status = -1;
         obj.error = "API not found";
