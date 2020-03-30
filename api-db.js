@@ -64,6 +64,18 @@ exports.apiDb = function (req, res, obj) {
             }
         );
     } else if (req.pathname.endsWith("/ulozStudenta")) {
+        let qry = "UPDATE spaserverexample_studenti SET tridy_id = '"+req.parameters.trida+"', jmeno = '"+req.parameters.jmeno+"', prijmeni = '"+req.parameters.prijmeni+"' WHERE id="+req.parameters.id;
+        connection.query(qry,
+            function(err, rows){
+                if (err) {
+                    console.error(JSON.stringify({status: "Error", error: err}));
+                    obj.error = JSON.stringify(err);
+                } else {
+                }
+                res.end(JSON.stringify(obj));
+            }
+        );
+    } else if (req.pathname.endsWith("/ulozStudenta")) {
         //obdoba /pridejStudenta, ale bude to "UPDATE ... WHERE id=req.parameters.id"
     } else {
         obj.status = -1;

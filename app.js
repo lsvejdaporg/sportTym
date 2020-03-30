@@ -12,7 +12,7 @@ const API_STATUS_OK = 0;
 const API_STATUS_NOT_FOUND = -1;
 
 function processApi(req, res) {
-    console.log(req.pathname);
+    //console.log(req.pathname);
     res.writeHead(200, API_HEAD);
     let obj = {};
     obj.status = API_STATUS_OK;

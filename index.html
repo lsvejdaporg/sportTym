@@ -92,7 +92,8 @@
                             s += `<option value="${t.id}">${t.rocnik}.${t.oznaceni}</option>`;
                         }
                         s += `</select>`;
-                        s += `&nbsp;&nbsp;<input type="text" id="jmeno" placeholder="jméno"><input type="text" id="prijmeni" placeholder="příjmení"><input type="button" value="Uložit" onclick="pridejStudenta()">`;
+                        s += `&nbsp;&nbsp;<input type="text" id="jmeno" placeholder="jméno"><input type="text" id="prijmeni" placeholder="příjmení"><input type="button" value="Uložit" onclick="ulozStudenta()">`;
+                        s += `<input type="button" value="Storno" onclick="stornoStudenta()">`;
                         s += `<br><input type="text" id="vyhledat"><input type="button" value="Vyhledat" onclick="dbStudenti()">`;
                         document.getElementById("div_tridy").innerHTML = s;
                     }
@@ -102,6 +103,7 @@
             });
         }
         function smazStudenta(id) {
+            if (!confirm("Opravdu odstranit?")) return;
             let url = `${HOST}/db/smazStudenta?id=${id}`;
             fetch(url).then(function (response) {
                 response.text().then(function (text) {
@@ -116,13 +118,17 @@
                 });
             });
         }
-        function pridejStudenta() {
+        function ulozStudenta() {
             let t = document.getElementById("tridy").value;
             if (!t || t == "-") { //vse nebo nic
                 document.getElementById("div_studenti").innerHTML = "";
                 return;
             }
-            let url = `${HOST}/db/pridejStudenta?trida=${t}`;
+            let url = `${HOST}/db/pridejStudenta?`;
+            if (edit_id) {
+                url = `${HOST}/db/ulozStudenta?id=${edit_id}`;
+            }
+            url += "&trida=" + t;
             url += "&jmeno=" + document.getElementById("jmeno").value;
             url += "&prijmeni=" + document.getElementById("prijmeni").value;
             fetch(url).then(function (response) {
@@ -145,9 +151,10 @@
             document.getElementById("prijmeni").value = prijmeni;
 
         }
-        function ulozStudenta() {
-            //obdoba function pridejStudenta(), ale musi se predat i id studenta s hodnotou ${edit_id}
-
+        function stornoStudenta() {
+            edit_id = undefined;
+            document.getElementById("jmeno").value = "";
+            document.getElementById("prijmeni").value = "";
         }
         function dbStudenti() {
             document.getElementById("jmeno").value = "";
