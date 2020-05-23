@@ -14,7 +14,9 @@
             } else {
                 s = e;
             }
-            alert(s);
+            //alert(s);
+            document.getElementById("div_chyby").innerHTML = `<input type="button" value="x" onclick="document.getElementById('div_chyby').style.display = 'none'"> ${s}`;
+            document.getElementById("div_chyby").style.display = 'block';
         }
 
         function ukazDen() {
@@ -190,9 +192,74 @@
             });
         }
 
+        function registrovat() {
+            let gr = document.getElementById("g-recaptcha-response").value;
+            let em = document.getElementById("reg_email").value;
+            let ln = document.getElementById("reg_prihljm").value;
+            let pw = document.getElementById("reg_heslo").value;
+            let pw2 = document.getElementById("reg_heslo2").value;
+            if (pw !== pw2) {
+                ukazChybu("Spatne zopakovana hesla!");
+                return;
+            }
+            let url = `${HOST}/db/pridejUzivatele`;
+            let body = {};
+            body.ln = ln;
+            body.pw = pw;
+            body.em = em;
+            body.gr = gr;
+            let options = {};
+            options.method = "POST";
+            options.body = JSON.stringify(body);
+            fetch(url, options).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        ukazChybu(obj.error);
+                    } else {
+                        document.getElementById("reg_email").value = "";
+                        document.getElementById("reg_prihljm").value = "- registrovan -";
+                        document.getElementById("reg_heslo").value = "";
+                        document.getElementById("reg_heslo2").value = "";
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
+
+        function prihlasit() {
+            let gr = document.getElementById("g-recaptcha-response").value;
+            let ln = document.getElementById("prihljm").value;
+            let pw = document.getElementById("heslo").value;
+            let url = `${HOST}/db/prihlasUzivatele`;
+            let body = {};
+            body.ln = ln;
+            body.pw = pw;
+            body.gr = gr;
+            let options = {};
+            options.method = "POST";
+            options.body = JSON.stringify(body);
+            fetch(url, options).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        ukazChybu(obj.error);
+                    } else {
+                        document.getElementById("prihljm").value = "- prihlasen -";
+                        document.getElementById("heslo").value = "";
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
+
     </script>
 </head>
 <body onload="spustPoNacteni()">
+
+<div id="div_chyby" style="color: white; background-color: red; display: none"></div>
 
 <h1>Příklad použití modulu <a href="https://github.com/liborsvejda/spaserver" target="_blank">spaserver</a></h1>
 
@@ -209,5 +276,19 @@ dne <input type="date" id="datum2" onchange="ukazDen2()"> byl(a/o)/bude <span id
 <div id="div_tridy"><input type="button" value="Načti třídy" onclick="dbTridy()"></div>
 <div id="div_studenti"></div>
 
+<h2>Příklad registrace uživatele</h2>
+E-mail: <input type="email" id="reg_email"><br>
+Přihlašovací jméno: <input type="text" id="reg_prihljm"><br>
+Heslo: <input type="password" id="reg_heslo">, znovu: <input type="password" id="reg_heslo2"><br>
+<div class="g-recaptcha" data-sitekey="6LddseYUAAAAADmCmN4CcxS9pjwMdxXJAq0RyX_0"></div>
+<input type="button" value="Registrovat" onclick="registrovat()"><br>
+
+
+<h2>Příklad přihlášení uživatele</h2>
+Přihlašovací jméno: <input type="text" id="prihljm"><br>
+Heslo: <input type="password" id="heslo"><br>
+<input type="button" value="Přihlásit" onclick="prihlasit()"><br>
+
+<script src='https://www.google.com/recaptcha/api.js'></script>
 </body>
 </html>

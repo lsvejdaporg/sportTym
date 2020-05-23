@@ -37,3 +37,5 @@ function processApi(req, res) {
 }
 
 createSpaServer(PORT, processApi);
+
+console.log("...ale otevru ho na http://127.0.0.1:8080");
