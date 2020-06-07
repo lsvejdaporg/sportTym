@@ -1,5 +1,6 @@
 const createSpaServer = require("spaserver").createSpaServer;
 const apiHraci = require('./api-hraci').apiHraci;
+const apiZapasy = require('./api-zapasy').apiZapasy;
 
 const PORT = 8080; //aplikace na Rosti.cz musi bezet na portu 8080
 const API_HEAD = {
@@ -18,7 +19,7 @@ function processApi(req, res) {
         apiHraci(req, res, obj);
         return; //MySQL query je asynchronni
     } else if (req.pathname.startsWith("/zapasy")) {
-        //apiHraci(req, res, obj);
+        apiZapasy(req, res, obj);
         return; //MySQL query je asynchronni
     } else {
         obj.status = API_STATUS_NOT_FOUND;

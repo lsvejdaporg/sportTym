@@ -19,6 +19,9 @@
             document.getElementById("div_chyby").style.display = 'block';
         }
 
+        //*******************************************************
+        //***** Tym *********************************************
+        //*******************************************************
         function ulozHrace() {
             let url = `${HOST}/hraci/pridej?`;
             if (edit_id) {
@@ -78,6 +81,64 @@
             });
         }
 
+        //*******************************************************
+        //***** Zapasy ******************************************
+        //*******************************************************
+        function ulozZapas() {
+            let url = `${HOST}/zapasy/pridej?`;
+            if (zapas_id) {
+                url = `${HOST}/zapasy/uloz?id=${zapas_id}`;
+            }
+            url += "&datum="  + document.getElementById("datum").value;
+            url += "&cas=" + document.getElementById("cas").value;
+            url += "&misto=" + document.getElementById("misto").value;
+            url += "&souper=" + document.getElementById("souper").value;
+            url += "&skore=" + document.getElementById("skore").value;
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        document.getElementById("div_hraci").innerHTML = obj.error;
+                    } else {
+                        //dbHraci();
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
+        let zapas_id; //id editovaneho hrace
+        function upravitZapas(id, datum, cas, misto, souper, skore) {
+            zapas_id = id;
+            document.getElementById("datum").value = datum;
+            document.getElementById("cas").value = cas;
+            document.getElementById("misto").value = misto;
+            document.getElementById("souper").value = souper;
+            document.getElementById("skore").value = skore;
+        }
+        function dbZapasy() {
+            let url = `${HOST}/zapasy/`;
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        document.getElementById("div_zapasy").innerHTML = obj.error;
+                    } else {
+                        let s = ``;
+                        for (let z of obj.hraci) {
+                            s += `<a href="JavaScript:ukazZapas(${z.id})">`;
+                            s += `${z.datum} ${z.souper} (${z.skore})`;
+                            s += `</a><br>`;
+                        }
+                        document.getElementById("div_zapasy1").innerHTML = s;
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
+
+        //*******************************************************
         function ukazTym() {
             document.getElementById("div_tym").style.display = "block";
             document.getElementById("div_zapasy").style.display = "none";
@@ -88,6 +149,7 @@
             document.getElementById("div_tym").style.display = "none";
             document.getElementById("div_zapasy").style.display = "block";
             document.getElementById("div_zapas").style.display = "none";
+            dbZapasy();
         }
         function ukazZapas(id) {
             document.getElementById("div_tym").style.display = "none";
@@ -121,8 +183,12 @@
 
 <!-- ***** Zapasy ***** -->
 <div id="div_zapasy">
-    <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="ukazTym()">zpět na Tým</button></div>
+    <div style="position:fixed;right:40px;">
+        <button onclick="ukazTym()">Přidat zápas</button>
+        <button onclick="ukazTym()">zpět na Tým</button>
+    </div>
     <h1>Zápasy</h1>
+    <div id="div_zapasy1"></div>
 
 </div>
 

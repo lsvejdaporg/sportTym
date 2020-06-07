@@ -1,10 +1,10 @@
 const getDbConnection = require("./db-mysql").getConnection;
 
-exports.apiHraci = function (req, res, obj) {
+exports.apiZapasy = function (req, res, obj) {
     console.log(req.pathname);
     let connection = getDbConnection();
     if (req.pathname.endsWith("/")) {
-        let qry = "SELECT * FROM sporttym_hraci ORDER BY cislo_dresu";
+        let qry = "SELECT * FROM sporttym_zapasy ORDER BY id";
         console.log(qry);
         connection.query(qry,
             function(err, rows){
@@ -18,8 +18,8 @@ exports.apiHraci = function (req, res, obj) {
             }
         );
     } else if (req.pathname.endsWith("/pridej")) {
-        let qry = "INSERT INTO sporttym_hraci (cislo_dresu, jmeno, prijmeni, rok_narozeni)";
-        qry += " VALUES ('"+req.parameters.dres+"', '"+req.parameters.jmeno+"', '"+req.parameters.prijmeni+"', '"+req.parameters.roknar+"');";
+        let qry = "INSERT INTO sporttym_zapasy (datum, cas, misto, souper, skore)";
+        qry += " VALUES ('"+req.parameters.datum+"', '"+req.parameters.cas+"', '"+req.parameters.misto+"', '"+req.parameters.souper+"', '"+req.parameters.skore+"');";
         connection.query(qry,
             function(err, rows){
                 if (err) {
@@ -31,7 +31,7 @@ exports.apiHraci = function (req, res, obj) {
             }
         );
     } else if (req.pathname.endsWith("/uloz")) {
-        let qry = "UPDATE sporttym_hraci SET cislo_dresu = '"+req.parameters.dres+"', jmeno = '"+req.parameters.jmeno+"', prijmeni = '"+req.parameters.prijmeni+"', rok_narozeni = '"+req.parameters.roknar+"' WHERE id="+req.parameters.id;
+        let qry = "UPDATE sporttym_zapasy SET datum = '"+req.parameters.datum+"', cas = '"+req.parameters.cas+"', misto = '"+req.parameters.misto+"', souper = '"+req.parameters.souper+"', skore = '"+req.parameters.skore+"' WHERE id="+req.parameters.id;
         connection.query(qry,
             function(err, rows){
                 if (err) {
