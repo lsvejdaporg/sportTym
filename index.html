@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Příklad použití modulu spaserver</title>
+    <title>Sportovní tým</title>
     <script>
         const HOST = window.location.protocol + "//" + window.location.hostname + ((window.location.port) ? ":" + window.location.port : "");
 
@@ -17,64 +17,6 @@
             //alert(s);
             document.getElementById("div_chyby").innerHTML = `<input type="button" value="x" onclick="document.getElementById('div_chyby').style.display = 'none'"> ${s}`;
             document.getElementById("div_chyby").style.display = 'block';
-        }
-
-        function ukazDen() {
-            let url = `${HOST}/denvtydnu`;
-            fetch(url).then(function (response) {
-                response.text().then(function (text) {
-                    let obj = JSON.parse(text);
-                    document.getElementById("den").innerHTML = obj.den.toLowerCase();
-                    document.getElementById("datum").innerHTML = obj.datum;
-                }).catch((error) => {
-                    ukazChybu(error);
-                });
-            });
-        }
-
-        function ukazCas() {
-            let url = `${HOST}/cas`;
-            fetch(url).then(function (response) {
-                response.text().then(function (text) {
-                    let obj = JSON.parse(text);
-                    document.getElementById("cas").innerHTML = obj.cas;
-                }).catch((error) => {
-                    ukazChybu(error);
-                });
-            });
-        }
-
-        function spustPoNacteni() {
-            ukazDen();
-            setInterval(ukazCas, 1000);
-
-            let dt = new Date();
-            dt.setMonth(11); //prosinec
-            dt.setDate(31); //Silvestr
-            document.getElementById("datum2").valueAsDate = dt;
-            ukazDen2();
-        }
-
-        function ukazDen2() {
-            let dt = document.getElementById("datum2").valueAsDate;
-            if (!dt) return;
-            let opt = null;
-            let url = `${HOST}/denvtydnu`;
-            if (document.getElementById("GET").checked) {
-                url = `${url}?r=${dt.getFullYear()}&m=${dt.getMonth() + 1}&d=${dt.getDate()}`;
-            } else {
-                let body = {"r": dt.getFullYear(), "m": dt.getMonth() + 1, "d": dt.getDate()};
-                opt = {"method": "POST", "body": JSON.stringify(body)};
-            }
-            fetch(url, opt).then(function (response) {
-                response.text().then(function (text) {
-                    let obj = JSON.parse(text);
-                    document.getElementById("den2").innerHTML = obj.den.toLowerCase();
-                    document.getElementById("datum2").innerHTML = obj.datum;
-                }).catch((error) => {
-                    ukazChybu(error);
-                });
-            });
         }
 
         function dbTridy() {
@@ -96,7 +38,6 @@
                         s += `</select>`;
                         s += `&nbsp;&nbsp;<input type="text" id="jmeno" placeholder="jméno"><input type="text" id="prijmeni" placeholder="příjmení"><input type="button" value="Uložit" onclick="ulozStudenta()">`;
                         s += `<input type="button" value="Storno" onclick="stornoStudenta()">`;
-                        s += `<br><input type="text" id="vyhledat"><input type="button" value="Vyhledat" onclick="dbStudenti()">`;
                         document.getElementById("div_tridy").innerHTML = s;
                     }
                 }).catch((error) => {
@@ -170,10 +111,6 @@
             if (t) {
                 url += "&trida=" + t;
             }
-            let txt = document.getElementById("vyhledat").value;
-            if (txt) {
-                url += "&text=" + txt;
-            }
             fetch(url).then(function (response) {
                 response.text().then(function (text) {
                     let obj = JSON.parse(text);
@@ -192,67 +129,24 @@
             });
         }
 
-        function registrovat() {
-            let gr = document.getElementById("g-recaptcha-response").value;
-            let em = document.getElementById("reg_email").value;
-            let ln = document.getElementById("reg_prihljm").value;
-            let pw = document.getElementById("reg_heslo").value;
-            let pw2 = document.getElementById("reg_heslo2").value;
-            if (pw !== pw2) {
-                ukazChybu("Spatne zopakovana hesla!");
-                return;
-            }
-            let url = `${HOST}/db/pridejUzivatele`;
-            let body = {};
-            body.ln = ln;
-            body.pw = pw;
-            body.em = em;
-            body.gr = gr;
-            let options = {};
-            options.method = "POST";
-            options.body = JSON.stringify(body);
-            fetch(url, options).then(function (response) {
-                response.text().then(function (text) {
-                    let obj = JSON.parse(text);
-                    if (obj.error) {
-                        ukazChybu(obj.error);
-                    } else {
-                        document.getElementById("reg_email").value = "";
-                        document.getElementById("reg_prihljm").value = "- registrovan -";
-                        document.getElementById("reg_heslo").value = "";
-                        document.getElementById("reg_heslo2").value = "";
-                    }
-                }).catch((error) => {
-                    ukazChybu(error);
-                });
-            });
+        function ukazTym() {
+            document.getElementById("div_tym").style.display = "block";
+            document.getElementById("div_zapasy").style.display = "none";
+            document.getElementById("div_zapas").style.display = "none";
         }
-
-        function prihlasit() {
-            let gr = document.getElementById("g-recaptcha-response").value;
-            let ln = document.getElementById("prihljm").value;
-            let pw = document.getElementById("heslo").value;
-            let url = `${HOST}/db/prihlasUzivatele`;
-            let body = {};
-            body.ln = ln;
-            body.pw = pw;
-            body.gr = gr;
-            let options = {};
-            options.method = "POST";
-            options.body = JSON.stringify(body);
-            fetch(url, options).then(function (response) {
-                response.text().then(function (text) {
-                    let obj = JSON.parse(text);
-                    if (obj.error) {
-                        ukazChybu(obj.error);
-                    } else {
-                        document.getElementById("prihljm").value = "- prihlasen -";
-                        document.getElementById("heslo").value = "";
-                    }
-                }).catch((error) => {
-                    ukazChybu(error);
-                });
-            });
+        function ukazZapasy() {
+            document.getElementById("div_tym").style.display = "none";
+            document.getElementById("div_zapasy").style.display = "block";
+            document.getElementById("div_zapas").style.display = "none";
+        }
+        function ukazZapas(id) {
+            document.getElementById("div_tym").style.display = "none";
+            document.getElementById("div_zapasy").style.display = "none";
+            document.getElementById("div_zapas").style.display = "block";
+        }
+        function spustPoNacteni() {
+            ukazTym();
+            dbTridy();
         }
 
     </script>
@@ -261,34 +155,29 @@
 
 <div id="div_chyby" style="color: white; background-color: red; display: none"></div>
 
-<h1>Příklad použití modulu <a href="https://github.com/liborsvejda/spaserver" target="_blank">spaserver</a></h1>
+<!-- ***** Tym ***** -->
+<div id="div_tym">
+    <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="ukazZapasy()">Zápasy</button></div>
+    <h1>Tým</h1>
 
-Dnes je <span id="den">...</span> <span id="datum">...</span>. Čas na serveru je <span id="cas">...</span>.
-<br><br>
-Použiju metodu <input type="radio" name="metoda" id="GET" checked="checked">GET nebo <input type="radio" name="metoda"
-                                                                                            id="POST">POST a zjistím, že
-dne <input type="date" id="datum2" onchange="ukazDen2()"> byl(a/o)/bude <span id="den2">...</span>.
-<br><br>
-<img src="res/nodejs.png" title="obrázek">
+    <div id="div_tridy"><input type="button" value="Načti třídy" onclick="dbTridy()"></div>
+    <div id="div_studenti"></div>
 
-<h2>Příklad použití MySQL - školní třídy a studenti</h2>
+</div>
 
-<div id="div_tridy"><input type="button" value="Načti třídy" onclick="dbTridy()"></div>
-<div id="div_studenti"></div>
+<!-- ***** Zapasy ***** -->
+<div id="div_zapasy">
+    <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="ukazTym()">zpět na Tým</button></div>
+    <h1>Zápasy</h1>
 
-<h2>Příklad registrace uživatele</h2>
-E-mail: <input type="email" id="reg_email"><br>
-Přihlašovací jméno: <input type="text" id="reg_prihljm"><br>
-Heslo: <input type="password" id="reg_heslo">, znovu: <input type="password" id="reg_heslo2"><br>
-<div class="g-recaptcha" data-sitekey="6LddseYUAAAAADmCmN4CcxS9pjwMdxXJAq0RyX_0"></div>
-<input type="button" value="Registrovat" onclick="registrovat()"><br>
+</div>
 
+<!-- ***** Zapas ***** -->
+<div id="div_zapas">
+    <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="ukazZapasy()">zpět na Zápasy</button></div>
+    <h1>Zápas</h1>
 
-<h2>Příklad přihlášení uživatele</h2>
-Přihlašovací jméno: <input type="text" id="prihljm"><br>
-Heslo: <input type="password" id="heslo"><br>
-<input type="button" value="Přihlásit" onclick="prihlasit()"><br>
+</div>
 
-<script src='https://www.google.com/recaptcha/api.js'></script>
 </body>
 </html>
