@@ -20,9 +20,9 @@
         }
 
         function ulozHrace() {
-            let url = `${HOST}/db/pridejHrace?`;
+            let url = `${HOST}/hraci/pridej?`;
             if (edit_id) {
-                url = `${HOST}/db/ulozHrace?id=${edit_id}`;
+                url = `${HOST}/hraci/uloz?id=${edit_id}`;
             }
             url += "&dres="  + document.getElementById("cislo_dresu").value;
             url += "&jmeno=" + document.getElementById("jmeno").value;
@@ -58,9 +58,8 @@
             document.getElementById("rok_narozeni").value = "";
         }
         function dbHraci() {
-            document.getElementById("jmeno").value = "";
-            document.getElementById("prijmeni").value = "";
-            let url = `${HOST}/db/hraci?`;
+            stornoHrace(); //vycisteni vstupnich poli
+            let url = `${HOST}/hraci/`;
             fetch(url).then(function (response) {
                 response.text().then(function (text) {
                     let obj = JSON.parse(text);
@@ -83,6 +82,7 @@
             document.getElementById("div_tym").style.display = "block";
             document.getElementById("div_zapasy").style.display = "none";
             document.getElementById("div_zapas").style.display = "none";
+            dbHraci();
         }
         function ukazZapasy() {
             document.getElementById("div_tym").style.display = "none";
@@ -96,7 +96,6 @@
         }
         function spustPoNacteni() {
             ukazTym();
-            dbHraci();
         }
 
     </script>
