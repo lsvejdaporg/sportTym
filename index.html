@@ -19,109 +19,59 @@
             document.getElementById("div_chyby").style.display = 'block';
         }
 
-        function dbTridy() {
-            let url = `${HOST}/db/tridy`;
-            fetch(url).then(function (response) {
-                response.text().then(function (text) {
-                    let obj = JSON.parse(text);
-                    if (obj.error) {
-                        alert(obj.error);
-                        let s = `<a href="./db-setup/index.html" target="_blank">Příprava databáze</a>`;
-                        document.getElementById("div_tridy").innerHTML = s;
-                    } else {
-                        let s = `Třídy: <select id="tridy" onchange="dbStudenti()">`;
-                        s += `<option value="-">- nic -</option>`;
-                        s += `<option value="">Vše</option>`;
-                        for (let t of obj.tridy) {
-                            s += `<option value="${t.id}">${t.rocnik}.${t.oznaceni}</option>`;
-                        }
-                        s += `</select>`;
-                        s += `&nbsp;&nbsp;<input type="text" id="jmeno" placeholder="jméno"><input type="text" id="prijmeni" placeholder="příjmení"><input type="button" value="Uložit" onclick="ulozStudenta()">`;
-                        s += `<input type="button" value="Storno" onclick="stornoStudenta()">`;
-                        document.getElementById("div_tridy").innerHTML = s;
-                    }
-                }).catch((error) => {
-                    ukazChybu(error);
-                });
-            });
-        }
-        function smazStudenta(id) {
-            if (!confirm("Opravdu odstranit?")) return;
-            let url = `${HOST}/db/smazStudenta?id=${id}`;
-            fetch(url).then(function (response) {
-                response.text().then(function (text) {
-                    let obj = JSON.parse(text);
-                    if (obj.error) {
-                        document.getElementById("div_studenti").innerHTML = obj.error;
-                    } else {
-                        dbStudenti();
-                    }
-                }).catch((error) => {
-                    ukazChybu(error);
-                });
-            });
-        }
-        function ulozStudenta() {
-            let t = document.getElementById("tridy").value;
-            if (!t || t == "-") { //vse nebo nic
-                document.getElementById("div_studenti").innerHTML = "";
-                return;
-            }
-            let url = `${HOST}/db/pridejStudenta?`;
+        function ulozHrace() {
+            let url = `${HOST}/db/pridejHrace?`;
             if (edit_id) {
-                url = `${HOST}/db/ulozStudenta?id=${edit_id}`;
+                url = `${HOST}/db/ulozHrace?id=${edit_id}`;
             }
-            url += "&trida=" + t;
+            url += "&dres="  + document.getElementById("cislo_dresu").value;
             url += "&jmeno=" + document.getElementById("jmeno").value;
             url += "&prijmeni=" + document.getElementById("prijmeni").value;
+            url += "&roknar=" + document.getElementById("rok_narozeni").value;
             fetch(url).then(function (response) {
                 response.text().then(function (text) {
                     let obj = JSON.parse(text);
                     if (obj.error) {
-                        document.getElementById("div_studenti").innerHTML = obj.error;
+                        document.getElementById("div_hraci").innerHTML = obj.error;
                     } else {
-                        dbStudenti();
+                        dbHraci();
                     }
                 }).catch((error) => {
                     ukazChybu(error);
                 });
             });
         }
-        let edit_id; //id editovaneho studenta
-        function upravitStudenta(id, jmeno, prijmeni) {
+        let edit_id; //id editovaneho hrace
+        function upravitHrace(id, dres, jmeno, prijmeni, roknar) {
             edit_id = id;
+            document.getElementById("cislo_dresu").value = dres;
             document.getElementById("jmeno").value = jmeno;
             document.getElementById("prijmeni").value = prijmeni;
+            document.getElementById("rok_narozeni").value = roknar;
 
         }
-        function stornoStudenta() {
+        function stornoHrace() {
             edit_id = undefined;
+            document.getElementById("cislo_dresu").value = "";
             document.getElementById("jmeno").value = "";
             document.getElementById("prijmeni").value = "";
+            document.getElementById("rok_narozeni").value = "";
         }
-        function dbStudenti() {
+        function dbHraci() {
             document.getElementById("jmeno").value = "";
             document.getElementById("prijmeni").value = "";
-            let url = `${HOST}/db/studenti?`;
-            let t = document.getElementById("tridy").value;
-            if (t == "-") { //nic
-                document.getElementById("div_studenti").innerHTML = "";
-                return;
-            }
-            if (t) {
-                url += "&trida=" + t;
-            }
+            let url = `${HOST}/db/hraci?`;
             fetch(url).then(function (response) {
                 response.text().then(function (text) {
                     let obj = JSON.parse(text);
                     if (obj.error) {
-                        document.getElementById("div_studenti").innerHTML = obj.error;
+                        document.getElementById("div_hraci").innerHTML = obj.error;
                     } else {
                         let s = ``;
-                        for (let st of obj.studenti) {
-                            s += `[<a href="JavaScript:smazStudenta(${st.id})">X</a>] <a href="JavaScript:upravitStudenta(${st.id},'${st.jmeno}','${st.prijmeni}')">${st.prijmeni} ${st.jmeno}</a> (${st.rocnik}.${st.oznaceni_tridy}) ${st.cislo_podle_tridnice}<br>`;
+                        for (let st of obj.hraci) {
+                            s += `<a href="JavaScript:upravitHrace(${st.id},${st.cislo_dresu},'${st.jmeno}','${st.prijmeni}',${st.rok_narozeni})">#${st.cislo_dresu} ${st.jmeno} ${st.prijmeni} (${st.rok_narozeni}) </a><br>`;
                         }
-                        document.getElementById("div_studenti").innerHTML = s;
+                        document.getElementById("div_hraci").innerHTML = s;
                     }
                 }).catch((error) => {
                     ukazChybu(error);
@@ -146,7 +96,7 @@
         }
         function spustPoNacteni() {
             ukazTym();
-            dbTridy();
+            dbHraci();
         }
 
     </script>
@@ -160,8 +110,13 @@
     <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="ukazZapasy()">Zápasy</button></div>
     <h1>Tým</h1>
 
-    <div id="div_tridy"><input type="button" value="Načti třídy" onclick="dbTridy()"></div>
-    <div id="div_studenti"></div>
+    #<input type="number" id="cislo_dresu" placeholder="dres" min="1" max="99">
+    <input type="text" id="jmeno" placeholder="jméno">
+    <input type="text" id="prijmeni" placeholder="příjmení">
+    <input type="number" id="rok_narozeni" placeholder="narozen(a)" min="1900" max="2020">
+    <input type="button" value="Uložit" onclick="ulozHrace()">
+    <input type="button" value="Storno" onclick="stornoHrace()">
+    <div id="div_hraci"></div>
 
 </div>
 
