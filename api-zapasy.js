@@ -24,7 +24,7 @@ exports.apiZapasy = function (req, res, obj) {
                 res.end(JSON.stringify(obj));
             }
         );
-    } else if (req.pathname.endsWith("/pridej")) {
+    } else if (req.pathname.endsWith("/pridej")) { //pomoci INSERT INTO ...SELECT
         let qry = "INSERT INTO sporttym_zapasy (datum, cas, misto, souper, skore)";
         qry += " VALUES ('"+req.parameters.datum+"', '"+req.parameters.cas+"', '"+req.parameters.misto+"', '"+req.parameters.souper+"', '"+req.parameters.skore+"');";
         connection.query(qry,
@@ -44,6 +44,50 @@ exports.apiZapasy = function (req, res, obj) {
                                 obj.error = JSON.stringify(err);
                             } else {
                                 console.log(rows);
+                            }
+                            res.end(JSON.stringify(obj));
+                        }
+                    );
+                }
+            }
+        );
+    } else if (req.pathname.endsWith("/pridej2")) {  //pomoci INSERT INTO ...VALUES (hrac) (hrac) ...
+        let qry = "INSERT INTO sporttym_zapasy (datum, cas, misto, souper, skore)";
+        qry += " VALUES ('"+req.parameters.datum+"', '"+req.parameters.cas+"', '"+req.parameters.misto+"', '"+req.parameters.souper+"', '"+req.parameters.skore+"');";
+        connection.query(qry,
+            function(err, rows){
+                if (err) {
+                    console.error(JSON.stringify({status: "Error", error: err}));
+                    obj.error = JSON.stringify(err);
+                } else {
+                    obj.id = rows.insertId;
+                    let zapas = rows.insertId;
+                    let qry = "SELECT * FROM sporttym_hraci ORDER BY cislo_dresu";
+                    console.log(qry);
+                    connection.query(qry,
+                        function(err, rows, cols){
+                            if (err) {
+                                console.error(JSON.stringify({status: "Error", error: err}));
+                                obj.error = JSON.stringify(err);
+                            } else {
+                                console.log(rows);
+                                let qry = "INSERT INTO sporttym_nominace (zapasy_id, hraci_id) VALUES";
+                                for (let r of rows) {
+                                    qry += " ("+zapas+", "+r.id+"),";
+                                }
+                                qry = qry.substr(0, qry.length-1);
+                                console.log(qry);
+                                connection.query(qry,
+                                    function(err, rows){
+                                        if (err) {
+                                            console.error(JSON.stringify({status: "Error", error: err}));
+                                            obj.error = JSON.stringify(err);
+                                        } else {
+                                            console.log(rows);
+                                        }
+                                        res.end(JSON.stringify(obj));
+                                    }
+                                );
                             }
                             res.end(JSON.stringify(obj));
                         }
