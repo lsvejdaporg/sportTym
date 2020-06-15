@@ -18,6 +18,7 @@ CREATE TABLE `sporttym_zapasy` (
 CREATE TABLE `sporttym_nominace` (
                                      `zapasy_id` int(11) NOT NULL,
                                      `hraci_id` int(11) NOT NULL,
-                                     `goly` int(11) NOT NULL,
-                                     `asistence` int(11) NOT NULL
+                                     `je_nominovan` tinyint(1) NOT NULL DEFAULT 0,
+                                     `goly` int(11) NOT NULL DEFAULT 0,
+                                     `asistence` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
