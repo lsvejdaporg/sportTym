@@ -1,4 +1,5 @@
 const getDbConnection = require("./db-mysql").getConnection;
+const decodeStringColumns = require("./db-mysql").decodeStringColumns;
 
 exports.apiNominace = function (req, res, obj) {
     console.log(req.pathname);
@@ -7,11 +8,12 @@ exports.apiNominace = function (req, res, obj) {
         let qry = "SELECT h.*,n.je_nominovan,n.goly,n.asistence FROM sporttym_hraci h LEFT JOIN sporttym_nominace n ON h.id = n.hraci_id WHERE n.zapasy_id="+req.parameters.zapas+" ORDER BY h.cislo_dresu";
         console.log(qry);
         connection.query(qry,
-            function(err, rows){
+            function(err, rows, cols){
                 if (err) {
                     console.error(JSON.stringify({status: "Error", error: err}));
                     obj.error = JSON.stringify(err);
                 } else {
+                    decodeStringColumns(rows, cols);
                     obj.hraci = rows;
                 }
                 res.end(JSON.stringify(obj));

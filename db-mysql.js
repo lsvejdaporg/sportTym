@@ -11,6 +11,7 @@
  */
 const getAppConfig = require("./app-config.js").getAppConfig;
 const mysql = require('mysql');
+const decodeString = require("spaserver").decodeString;
 
 let connection;
 
@@ -51,3 +52,12 @@ const _checkDbConnection = function() {
     });
 }
 
+exports.decodeStringColumns = function(rows, cols) {
+    for (let j = 0; j < rows.length; j++) {
+        for (let i = 0; i < cols.length; i++) {
+            if (cols[i].type == 253) {
+                rows[j][cols[i].name] = decodeString(rows[j][cols[i].name]);
+            }
+        }
+    }
+}

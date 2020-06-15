@@ -1,4 +1,5 @@
 const getDbConnection = require("./db-mysql").getConnection;
+const decodeStringColumns = require("./db-mysql").decodeStringColumns;
 
 exports.apiZapasy = function (req, res, obj) {
     console.log(req.pathname);
@@ -12,11 +13,12 @@ exports.apiZapasy = function (req, res, obj) {
         }
         console.log(qry);
         connection.query(qry,
-            function(err, rows){
+            function(err, rows, cols){
                 if (err) {
                     console.error(JSON.stringify({status: "Error", error: err}));
                     obj.error = JSON.stringify(err);
                 } else {
+                    decodeStringColumns(rows, cols);
                     obj.zapasy = rows;
                 }
                 res.end(JSON.stringify(obj));
