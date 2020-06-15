@@ -22,7 +22,7 @@
         //*******************************************************
         //***** Tym *********************************************
         //*******************************************************
-        function ulozHrace() {
+        function dbUlozHrace() {
             let url = `${HOST}/hraci/pridej?`;
             if (edit_id) {
                 url = `${HOST}/hraci/uloz?id=${edit_id}`;
@@ -37,7 +37,7 @@
                     if (obj.error) {
                         document.getElementById("div_hraci").innerHTML = obj.error;
                     } else {
-                        dbHraci();
+                        dbNactiTym();
                     }
                 }).catch((error) => {
                     ukazChybu(error);
@@ -60,7 +60,7 @@
             document.getElementById("prijmeni").value = "";
             document.getElementById("rok_narozeni").value = "";
         }
-        function dbHraci() {
+        function dbNactiTym() {
             stornoHrace(); //vycisteni vstupnich poli
             let url = `${HOST}/hraci/`;
             fetch(url).then(function (response) {
@@ -84,11 +84,52 @@
         //*******************************************************
         //***** Zapasy ******************************************
         //*******************************************************
-        function ulozZapas() {
+        let zapas_id; //id editovaneho zapasu
+        function upravitZapas(id, datum, cas, misto, souper, skore) {
+        }
+        function dbNactiZapasy() {
+            let url = `${HOST}/zapasy/`;
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        document.getElementById("div_zapasy").innerHTML = obj.error;
+                    } else {
+                        let s = ``;
+                        for (let z of obj.zapasy) {
+                            s += `<a href="JavaScript:ukazZapas(${z.id})">`;
+                            s += `${z.datum} ${z.souper} (${z.skore})`;
+                            s += `</a><br>`;
+                        }
+                        document.getElementById("div_zapasy1").innerHTML = s;
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
+        function dbPridejZapas() {
             let url = `${HOST}/zapasy/pridej?`;
-            if (zapas_id) {
-                url = `${HOST}/zapasy/uloz?id=${zapas_id}`;
-            }
+            url += "&datum=";
+            url += "&cas=";
+            url += "&misto=";
+            url += "&souper=";
+            url += "&skore=";
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        document.getElementById("div_zapasy").innerHTML = obj.error;
+                    } else {
+                        ukazZapas(obj.id);
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
+        function dbUlozZapas() {
+            let url = `${HOST}/zapasy/uloz?id=${zapas_id}`;
             url += "&datum="  + document.getElementById("datum").value;
             url += "&cas=" + document.getElementById("cas").value;
             url += "&misto=" + document.getElementById("misto").value;
@@ -100,37 +141,26 @@
                     if (obj.error) {
                         document.getElementById("div_hraci").innerHTML = obj.error;
                     } else {
-                        //dbHraci();
                     }
                 }).catch((error) => {
                     ukazChybu(error);
                 });
             });
         }
-        let zapas_id; //id editovaneho hrace
-        function upravitZapas(id, datum, cas, misto, souper, skore) {
-            zapas_id = id;
-            document.getElementById("datum").value = datum;
-            document.getElementById("cas").value = cas;
-            document.getElementById("misto").value = misto;
-            document.getElementById("souper").value = souper;
-            document.getElementById("skore").value = skore;
-        }
-        function dbZapasy() {
-            let url = `${HOST}/zapasy/`;
+        function dbNactiZapas() {
+            let url = `${HOST}/zapasy/?id=${zapas_id}`;
             fetch(url).then(function (response) {
                 response.text().then(function (text) {
                     let obj = JSON.parse(text);
                     if (obj.error) {
                         document.getElementById("div_zapasy").innerHTML = obj.error;
                     } else {
-                        let s = ``;
-                        for (let z of obj.hraci) {
-                            s += `<a href="JavaScript:ukazZapas(${z.id})">`;
-                            s += `${z.datum} ${z.souper} (${z.skore})`;
-                            s += `</a><br>`;
-                        }
-                        document.getElementById("div_zapasy1").innerHTML = s;
+                        let zapas = obj.zapasy[0];
+                        document.getElementById("datum").value = zapas.datum;
+                        document.getElementById("cas").value = zapas.cas;
+                        document.getElementById("misto").value = zapas.misto;
+                        document.getElementById("souper").value = zapas.souper;
+                        document.getElementById("skore").value = zapas.skore;
                     }
                 }).catch((error) => {
                     ukazChybu(error);
@@ -143,18 +173,20 @@
             document.getElementById("div_tym").style.display = "block";
             document.getElementById("div_zapasy").style.display = "none";
             document.getElementById("div_zapas").style.display = "none";
-            dbHraci();
+            dbNactiTym();
         }
         function ukazZapasy() {
             document.getElementById("div_tym").style.display = "none";
             document.getElementById("div_zapasy").style.display = "block";
             document.getElementById("div_zapas").style.display = "none";
-            dbZapasy();
+            dbNactiZapasy();
         }
         function ukazZapas(id) {
+            zapas_id = id;
             document.getElementById("div_tym").style.display = "none";
             document.getElementById("div_zapasy").style.display = "none";
             document.getElementById("div_zapas").style.display = "block";
+            dbNactiZapas();
         }
         function spustPoNacteni() {
             ukazTym();
@@ -175,7 +207,7 @@
     <input type="text" id="jmeno" placeholder="jméno">
     <input type="text" id="prijmeni" placeholder="příjmení">
     <input type="number" id="rok_narozeni" placeholder="narozen(a)" min="1900" max="2020">
-    <input type="button" value="Uložit" onclick="ulozHrace()">
+    <input type="button" value="Uložit" onclick="dbUlozHrace()">
     <input type="button" value="Storno" onclick="stornoHrace()">
     <div id="div_hraci"></div>
 
@@ -184,7 +216,7 @@
 <!-- ***** Zapasy ***** -->
 <div id="div_zapasy">
     <div style="position:fixed;right:40px;">
-        <button onclick="ukazTym()">Přidat zápas</button>
+        <button onclick="dbPridejZapas()">Přidat zápas</button>
         <button onclick="ukazTym()">zpět na Tým</button>
     </div>
     <h1>Zápasy</h1>
@@ -196,6 +228,14 @@
 <div id="div_zapas">
     <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="ukazZapasy()">zpět na Zápasy</button></div>
     <h1>Zápas</h1>
+
+    Datum: <input type="text" id="datum" onchange="dbUlozZapas()"><br>
+    Čas: <input type="text" id="cas" onchange="dbUlozZapas()"><br>
+    Místo: <input type="text" id="misto" onchange="dbUlozZapas()"><br>
+    Soupeř: <input type="text" id="souper" onchange="dbUlozZapas()"><br>
+    Skore: <input type="text" id="skore" onchange="dbUlozZapas()"><br>
+    <br>
+    <div id="div_nominace"></div>
 
 </div>
 

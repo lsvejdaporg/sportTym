@@ -26,6 +26,8 @@ exports.apiHraci = function (req, res, obj) {
                     console.error(JSON.stringify({status: "Error", error: err}));
                     obj.error = JSON.stringify(err);
                 } else {
+                    console.log(rows);
+                    console.log("### "+rows.insertId);
                 }
                 res.end(JSON.stringify(obj));
             }
