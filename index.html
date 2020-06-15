@@ -166,8 +166,53 @@
                     ukazChybu(error);
                 });
             });
+            let url2 = `${HOST}/nominace/?zapas=${zapas_id}`;
+            fetch(url2).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        document.getElementById("div_zapasy").innerHTML = obj.error;
+                    } else {
+                        let s = ``;
+                        for (let st of obj.hraci) {
+                            let checked = ``;
+                            if (st.je_nominovan) {
+                                checked = ` checked="checked" `;
+                            }
+                            s += `#${st.cislo_dresu} ${st.jmeno} ${st.prijmeni} (${st.rok_narozeni})`;
+                            s += `<input type="checkbox" id="nominovan_${st.id}" ${checked} onchange="zmenNominaci(${st.id})">`;
+                            s += ` G:<input type="number" id="goly_${st.id}" min="0" max="99" value="${st.goly}" onchange="zmenNominaci(${st.id})">`;
+                            s += ` A:<input type="number" id="asistence_${st.id}" min="0" max="99" value="${st.asistence}" onchange="zmenNominaci(${st.id})">`;
+                            s += `<br>`;
+                        }
+                        document.getElementById("div_nominace").innerHTML = s;
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
         }
+        function zmenNominaci(id) {
+            let n = 0;
+            if (document.getElementById("nominovan_"+id).checked) {
+                n = 1;
+            };
+            let g = document.getElementById("goly_"+id).valueAsNumber;
+            let a = document.getElementById("asistence_"+id).valueAsNumber;
+            let url = `${HOST}/nominace/uloz?zapas=${zapas_id}&hrac=${id}&n=${n}&g=${g}&a=${a}`;
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        document.getElementById("div_zapasy").innerHTML = obj.error;
+                    } else {
+                    }
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
 
+        }
         //*******************************************************
         function ukazTym() {
             document.getElementById("div_tym").style.display = "block";
@@ -226,7 +271,7 @@
 
 <!-- ***** Zapas ***** -->
 <div id="div_zapas">
-    <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="ukazZapasy()">zpět na Zápasy</button></div>
+    <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="dbUlozZapas(); ukazZapasy()">zpět na Zápasy</button></div>
     <h1>Zápas</h1>
 
     Datum: <input type="text" id="datum" onchange="dbUlozZapas()"><br>

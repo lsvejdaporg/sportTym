@@ -20,7 +20,8 @@ exports.apiNominace = function (req, res, obj) {
             }
         );
     } else if (req.pathname.endsWith("/uloz")) {
-        let qry = "DELETE FROM sporttym_nominace WHERE zapasy_id="+req.parameters.zapas+" AND hraci_id="+req.parameters.hrac;
+        let qry = "UPDATE sporttym_nominace SET je_nominovan="+req.parameters.n +", goly="+req.parameters.g +", asistence="+req.parameters.a;
+        qry += " WHERE zapasy_id="+req.parameters.zapas+" AND hraci_id="+req.parameters.hrac;
         connection.query(qry,
             function(err, rows){
                 if (err) {
@@ -28,18 +29,6 @@ exports.apiNominace = function (req, res, obj) {
                     obj.error = JSON.stringify(err);
                 } else {
                     console.log(rows);
-                    let qry = "INSERT INTO sporttym_nominace (zapasy_id,hraci_id,goly,asistence) VALUES ("+req.parameters.zapas+","+req.parameters.hrac+","+req.parameters.g+","+req.parameters.a+")";
-                    connection.query(qry,
-                        function(err, rows){
-                            if (err) {
-                                console.error(JSON.stringify({status: "Error", error: err}));
-                                obj.error = JSON.stringify(err);
-                            } else {
-                                console.log(rows);
-                            }
-                            res.end(JSON.stringify(obj));
-                        }
-                    );
                 }
                 res.end(JSON.stringify(obj));
             }
