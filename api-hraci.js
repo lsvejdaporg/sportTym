@@ -5,7 +5,10 @@ exports.apiHraci = function (req, res, obj) {
     console.log(req.pathname);
     let connection = getDbConnection();
     if (req.pathname.endsWith("/")) {
-        let qry = "SELECT * FROM sporttym_hraci ORDER BY cislo_dresu";
+        let qry = "SELECT h.*, SUM(n.je_nominovan) as z, SUM(n.goly) as g, SUM(n.asistence) as a FROM sporttym_hraci h, sporttym_nominace n";
+        qry += " WHERE h.id = n.hraci_id";
+        qry += " GROUP BY n.hraci_id";
+        qry += " ORDER BY cislo_dresu";
         console.log(qry);
         connection.query(qry,
             function(err, rows, cols){

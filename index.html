@@ -71,7 +71,8 @@
                     } else {
                         let s = ``;
                         for (let st of obj.hraci) {
-                            s += `<a href="JavaScript:upravitHrace(${st.id},${st.cislo_dresu},'${st.jmeno}','${st.prijmeni}',${st.rok_narozeni})">#${st.cislo_dresu} ${st.jmeno} ${st.prijmeni} (${st.rok_narozeni}) </a><br>`;
+                            s += `<a href="JavaScript:upravitHrace(${st.id},${st.cislo_dresu},'${st.jmeno}','${st.prijmeni}',${st.rok_narozeni})">#${st.cislo_dresu} ${st.jmeno} ${st.prijmeni} (${st.rok_narozeni})</a>`;
+                            s += ` Z:${st.z} G:${st.g} A:${st.a} <br>`;
                         }
                         document.getElementById("div_hraci").innerHTML = s;
                     }
