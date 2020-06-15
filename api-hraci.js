@@ -5,10 +5,10 @@ exports.apiHraci = function (req, res, obj) {
     console.log(req.pathname);
     let connection = getDbConnection();
     if (req.pathname.endsWith("/")) {
-        let qry = "SELECT h.*, SUM(n.je_nominovan) as z, SUM(n.goly) as g, SUM(n.asistence) as a FROM sporttym_hraci h, sporttym_nominace n";
-        qry += " WHERE h.id = n.hraci_id";
-        qry += " GROUP BY n.hraci_id";
-        qry += " ORDER BY cislo_dresu";
+        let qry = "SELECT h.*, COALESCE(SUM(n.je_nominovan),0) as z, COALESCE(SUM(n.goly),0) as g, COALESCE(SUM(n.asistence),0) as a";
+        qry += " FROM sporttym_hraci h LEFT JOIN sporttym_nominace n ON h.id = n.hraci_id";
+        qry += " GROUP BY h.id";
+        qry += " ORDER BY h.cislo_dresu";
         console.log(qry);
         connection.query(qry,
             function(err, rows, cols){
@@ -16,6 +16,7 @@ exports.apiHraci = function (req, res, obj) {
                     console.error(JSON.stringify({status: "Error", error: err}));
                     obj.error = JSON.stringify(err);
                 } else {
+                    console.log(rows);
                     decodeStringColumns(rows, cols);
                     obj.hraci = rows;
                 }
