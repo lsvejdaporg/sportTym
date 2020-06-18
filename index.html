@@ -3,6 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <title>Sportovní tým</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        table, th, td {
+            font-family: Calibri;
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 4px;
+        }
+        .table-edit, .table-edit td {
+            border: none;
+            border-collapse: collapse;
+            padding: 4px;
+        }
+        .flex-container {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+        .flex-container > div {
+            margin: 10px;
+            text-align: center;
+        }
+    </style>
     <script>
         const HOST = window.location.protocol + "//" + window.location.hostname + ((window.location.port) ? ":" + window.location.port : "");
 
@@ -46,6 +68,8 @@
         }
         let edit_id; //id editovaneho hrace
         function upravitHrace(id, dres, jmeno, prijmeni, roknar) {
+            document.getElementById("div_hrac_uprav").style.display = "block";
+            document.getElementById("div_hraci").style.display = "none";
             edit_id = id;
             document.getElementById("cislo_dresu").value = dres;
             document.getElementById("jmeno").value = jmeno;
@@ -54,6 +78,8 @@
 
         }
         function stornoHrace() {
+            document.getElementById("div_hrac_uprav").style.display = "none";
+            document.getElementById("div_hraci").style.display = "block";
             edit_id = undefined;
             document.getElementById("cislo_dresu").value = "";
             document.getElementById("jmeno").value = "";
@@ -69,11 +95,31 @@
                     if (obj.error) {
                         document.getElementById("div_hraci").innerHTML = obj.error;
                     } else {
-                        let s = ``;
-                        for (let st of obj.hraci) {
-                            s += `<a href="JavaScript:upravitHrace(${st.id},${st.cislo_dresu},'${st.jmeno}','${st.prijmeni}',${st.rok_narozeni})">#${st.cislo_dresu} ${st.jmeno} ${st.prijmeni} (${st.rok_narozeni})</a>`;
-                            s += ` Z:${st.z} G:${st.g} A:${st.a} <br>`;
+                        let s = `<table>`;
+                        s += `<tr>`;
+                        s += `<th>Dres</th>`;
+                        s += `<th>Jméno</th>`;
+                        s += `<th>Příjmení</th>`;
+                        s += `<th>Rok narození</th>`;
+                        s += `<th title="Zápasy">Z</th>`;
+                        s += `<th title="Góly">G</th>`;
+                        s += `<th title="Asistence">A</th>`;
+                        s += `<th><a href="JavaScript:upravitHrace(null,0,'','',2000)" title="Přidat..."><i class="material-icons">add</i></a></th>`;
+                        s += `</tr>`;
+                        for (let h of obj.hraci) {
+                            s += `<tr>`;
+                            s += `<td>${h.cislo_dresu}</td>`;
+                            s += `<td>${h.jmeno}</td>`;
+                            s += `<td>${h.prijmeni}</td>`;
+                            s += `<td>${h.rok_narozeni}</td>`;
+                            s += `<td>${h.z}</td>`;
+                            s += `<td>${h.g}</td>`;
+                            s += `<td>${h.a}</td>`;
+                            s += `<td><a href="JavaScript:upravitHrace(${h.id},${h.cislo_dresu},'${h.jmeno}','${h.prijmeni}',${h.rok_narozeni})" title="Upravit..."><i class="material-icons">create</i></a>`;
+                            s += `</td>`;
+                            s += `</tr>`;
                         }
+                        s += `</table>`;
                         document.getElementById("div_hraci").innerHTML = s;
                     }
                 }).catch((error) => {
@@ -96,12 +142,25 @@
                     if (obj.error) {
                         document.getElementById("div_zapasy").innerHTML = obj.error;
                     } else {
-                        let s = ``;
+                        let s = `<table>`;
+                        s += `<tr>`;
+                        s += `<th>Datum</th>`;
+                        s += `<th>Místo</th>`;
+                        s += `<th>Soupeř</th>`;
+                        s += `<th>Skóre</th>`;
+                        s += `<th><a href="JavaScript:dbPridejZapas()" title="Přidat..."><i class="material-icons">add</i></a></th>`;
+                        s += `</tr>`;
                         for (let z of obj.zapasy) {
-                            s += `<a href="JavaScript:ukazZapas(${z.id})">`;
-                            s += `${z.datum} ${z.souper} (${z.skore})`;
-                            s += `</a><br>`;
+                            s += `<tr>`;
+                            s += `<td>${z.datum}</td>`;
+                            s += `<td>${z.misto}</td>`;
+                            s += `<td>${z.souper}</td>`;
+                            s += `<td>${z.skore}</td>`;
+                            s += `<td><a href="JavaScript:ukazZapas(${z.id})" title="Upravit..."><i class="material-icons">create</i></a>`;
+                            s += `</td>`;
+                            s += `</tr>`;
                         }
+                        s += `</table>`;
                         document.getElementById("div_zapasy1").innerHTML = s;
                     }
                 }).catch((error) => {
@@ -110,8 +169,10 @@
             });
         }
         function dbPridejZapas() {
+            let dt = new Date();
+            let today = `${dt.getDate()}.${dt.getMonth()+1}.${dt.getFullYear()}`
             let url = `${HOST}/zapasy/pridej2?`;
-            url += "&datum=";
+            url += "&datum="+today;
             url += "&cas=";
             url += "&misto=";
             url += "&souper=";
@@ -162,6 +223,8 @@
                         document.getElementById("misto").value = zapas.misto;
                         document.getElementById("souper").value = zapas.souper;
                         document.getElementById("skore").value = zapas.skore;
+                        document.getElementById("datum").focus();
+                        document.getElementById("datum").setSelectionRange(0,0);
                     }
                 }).catch((error) => {
                     ukazChybu(error);
@@ -174,18 +237,34 @@
                     if (obj.error) {
                         document.getElementById("div_zapasy").innerHTML = obj.error;
                     } else {
-                        let s = ``;
-                        for (let st of obj.hraci) {
+                        let s = `<table>`;
+                        s += `<tr>`;
+                        s += `<th>Dres</th>`;
+                        s += `<th>Jméno</th>`;
+                        s += `<th>Příjmení</th>`;
+                        s += `<th>Rok narození</th>`;
+                        s += `<th>Nominace</th>`;
+                        s += `<th>Góly</th>`;
+                        s += `<th>Asistence</th>`;
+                        s += `</tr>`;
+                        for (let h of obj.hraci) {
                             let checked = ``;
-                            if (st.je_nominovan) {
-                                checked = ` checked="checked" `;
+                            let styleGA = `style="visibility:hidden"`;
+                            if (h.je_nominovan) {
+                                checked = `checked="checked"`;
+                                styleGA = ``;
                             }
-                            s += `#${st.cislo_dresu} ${st.jmeno} ${st.prijmeni} (${st.rok_narozeni})`;
-                            s += `<input type="checkbox" id="nominovan_${st.id}" ${checked} onchange="zmenNominaci(${st.id})">`;
-                            s += ` G:<input type="number" id="goly_${st.id}" min="0" max="99" value="${st.goly}" onchange="zmenNominaci(${st.id})">`;
-                            s += ` A:<input type="number" id="asistence_${st.id}" min="0" max="99" value="${st.asistence}" onchange="zmenNominaci(${st.id})">`;
-                            s += `<br>`;
+                            s += `<tr>`;
+                            s += `<td>${h.cislo_dresu}</td>`;
+                            s += `<td>${h.jmeno}</td>`;
+                            s += `<td>${h.prijmeni}</td>`;
+                            s += `<td>${h.rok_narozeni}</td>`;
+                            s += `<td><input type="checkbox" id="nominovan_${h.id}" ${checked} onchange="zmenNominaci(${h.id})"></td>`;
+                            s += `<td><input type="number" id="goly_${h.id}" min="0" max="99" value="${h.goly}" ${styleGA} onchange="zmenNominaci(${h.id})"></td>`;
+                            s += `<td><input type="number" id="asistence_${h.id}" min="0" max="99" value="${h.asistence}" ${styleGA} onchange="zmenNominaci(${h.id})"></td>`;
+                            s += `</tr>`;
                         }
+                        s += `</table>`;
                         document.getElementById("div_nominace").innerHTML = s;
                     }
                 }).catch((error) => {
@@ -194,12 +273,21 @@
             });
         }
         function zmenNominaci(id) {
+            let elemG = document.getElementById("goly_"+id);
+            let elemA = document.getElementById("asistence_"+id);
             let n = 0;
+            let g = 0;
+            let a = 0;
             if (document.getElementById("nominovan_"+id).checked) {
                 n = 1;
+                g = elemG.valueAsNumber;
+                a = elemA.valueAsNumber;
+                elemG.style.visibility = "visible";
+                elemA.style.visibility = "visible";
+            } else {
+                elemG.style.visibility = "hidden";
+                elemA.style.visibility = "hidden";
             };
-            let g = document.getElementById("goly_"+id).valueAsNumber;
-            let a = document.getElementById("asistence_"+id).valueAsNumber;
             let url = `${HOST}/nominace/uloz?zapas=${zapas_id}&hrac=${id}&n=${n}&g=${g}&a=${a}`;
             fetch(url).then(function (response) {
                 response.text().then(function (text) {
@@ -246,42 +334,58 @@
 
 <!-- ***** Tym ***** -->
 <div id="div_tym">
-    <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="ukazZapasy()">Zápasy</button></div>
-    <h1>Tým</h1>
+    <div class="flex-container">
+        <div><b>Tým</b></div>
+        <div><button onclick="ukazZapasy()">Zápasy</button></div>
+    </div>
 
-    #<input type="number" id="cislo_dresu" placeholder="dres" min="1" max="99">
-    <input type="text" id="jmeno" placeholder="jméno">
-    <input type="text" id="prijmeni" placeholder="příjmení">
-    <input type="number" id="rok_narozeni" placeholder="narozen(a)" min="1900" max="2020">
-    <input type="button" value="Uložit" onclick="dbUlozHrace()">
-    <input type="button" value="Storno" onclick="stornoHrace()">
+    <div id="div_hrac_uprav">
+        <table>
+            <tr><td>Dres</td><td><input type="number" id="cislo_dresu" min="1" max="99"></td></tr>
+            <tr><td>Jméno</td><td><input type="text" id="jmeno"></td></tr>
+            <tr><td>Příjmení</td><td><input type="text" id="prijmeni"></td></tr>
+            <tr><td>Rok narození</td><td><input type="number" id="rok_narozeni" min="1900" max="2020"></td></tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="button" value="Uložit" onclick="dbUlozHrace()">
+                    <input type="button" value="Storno" onclick="stornoHrace()">
+                </td>
+            </tr>
+        </table>
+    </div>
     <div id="div_hraci"></div>
 
 </div>
 
 <!-- ***** Zapasy ***** -->
 <div id="div_zapasy">
-    <div style="position:fixed;right:40px;">
-        <button onclick="dbPridejZapas()">Přidat zápas</button>
-        <button onclick="ukazTym()">zpět na Tým</button>
+    <div class="flex-container">
+        <div><b>Zápasy</b></div>
+        <div><button onclick="ukazTym()">zpět na Tým</button></div>
     </div>
-    <h1>Zápasy</h1>
+
     <div id="div_zapasy1"></div>
 
 </div>
 
 <!-- ***** Zapas ***** -->
 <div id="div_zapas">
-    <div style="position:fixed;right:40px;"><button style="alignment: right" onclick="dbUlozZapas(); ukazZapasy()">zpět na Zápasy</button></div>
-    <h1>Zápas</h1>
+    <div class="flex-container">
+        <div><b>Zápas</b></div>
+        <div><button onclick="dbUlozZapas(); ukazZapasy()">zpět na Zápasy</button></div>
+    </div>
 
-    Datum: <input type="text" id="datum" onchange="dbUlozZapas()"><br>
-    Čas: <input type="text" id="cas" onchange="dbUlozZapas()"><br>
-    Místo: <input type="text" id="misto" onchange="dbUlozZapas()"><br>
-    Soupeř: <input type="text" id="souper" onchange="dbUlozZapas()"><br>
-    Skore: <input type="text" id="skore" onchange="dbUlozZapas()"><br>
+    <table class="table-edit">
+        <tr><td>Datum:</td><td><input type="text" id="datum" onchange="dbUlozZapas()"></td></tr>
+        <tr><td>Čas:</td><td><input type="text" id="cas" onchange="dbUlozZapas()"></td></tr>
+        <tr><td>Místo:</td><td><input type="text" id="misto" onchange="dbUlozZapas()"></td></tr>
+        <tr><td>Soupeř:</td><td><input type="text" id="souper" onchange="dbUlozZapas()"></td></tr>
+        <tr><td>Skore:</td><td><input type="text" id="skore" onchange="dbUlozZapas()"></td></tr>
+    </table>
     <br>
-    <h2>Nominace</h2>
+
+    <b>Nominace</b>
     <div id="div_nominace"></div>
 
 </div>
