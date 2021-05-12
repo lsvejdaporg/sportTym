@@ -13,7 +13,7 @@
     "dateformat": "^3.0.3",
     "html-entities": "^1.2.1",
     "mysql": "^2.18.1",
-    "nodemailer": "^6.4.6",
+    "nodemailer": "^6.4.16",
     "request": "^2.88.2",
     "spaserver": "git+https://github.com/liborsvejda/spaserver.git"
   }
